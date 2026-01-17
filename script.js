@@ -84,6 +84,35 @@ document.querySelectorAll('.fade-in').forEach((element, index) => {
     fadeInObserver.observe(element);
 });
 
+// Custom smooth scroll function with easing
+function smoothScrollTo(targetPosition, duration = 1200) {
+    const startPosition = window.scrollY;
+    const distance = targetPosition - startPosition;
+    let startTime = null;
+
+    // Easing function for smooth deceleration
+    function easeInOutCubic(t) {
+        return t < 0.5
+            ? 4 * t * t * t
+            : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function animation(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+
+        window.scrollTo(0, startPosition + distance * easedProgress);
+
+        if (timeElapsed < duration) {
+            requestAnimationFrame(animation);
+        }
+    }
+
+    requestAnimationFrame(animation);
+}
+
 // Smooth scroll to anchors with offset
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -102,10 +131,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 const navHeight = navbar.offsetHeight;
                 const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - 20;
 
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
+                // Use custom smooth scroll with 1.2 second duration
+                smoothScrollTo(targetPosition, 1200);
             }
         }
     });
